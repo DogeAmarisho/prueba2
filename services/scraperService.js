@@ -1,26 +1,30 @@
-// services/scraperService.js 
+// services/scraperService.js
 const cheerio = require('cheerio');
 const fs = require('fs').promises;
 
-async function procesarArchivoLocal(ruta) {
+async function procesarHTML(ruta) {
     try {
-        const html = await fs.readFile(ruta, 'utf-8'); // [cite: 23]
-        const $ = cheerio.load(html); // [cite: 13, 95]
-        const resultados = [];
+        const html = await fs.readFile(ruta, 'utf-8');
+        if (!html) throw new Error("El archivo HTML está vacío"); // Validación [cite: 135]
 
-        $('.producto').each(function() { // [cite: 19, 96]
-            resultados.push({
-                nombre: $(this).find('.nombre').text().trim(), // Dato 1 [cite: 17, 98]
-                precio: parseInt($(this).find('.precio').text()), // Dato 2 [cite: 19]
-                categoria: $(this).find('.categoria').text().trim() // Dato 3 [cite: 34]
-            });
+        const $ = cheerio.load(html);
+        const productos = [];
+
+        $('.producto').each((i, el) => {
+            const nombre = $(el).find('.nombre').text().trim();
+            const precio = parseInt($(el).find('.precio').text());
+            const categoria = $(el).find('.categoria').text().trim();
+
+            // Solo agrega si los datos son válidos [cite: 135]
+            if (nombre && !isNaN(precio)) {
+                productos.push({ nombre, precio, categoria });
+            }
         });
 
-        if (resultados.length === 0) throw new Error("No se encontraron productos"); // [cite: 135]
-        return resultados;
+        return productos;
     } catch (error) {
-        throw error; // [cite: 34, 136]
+        throw error;
     }
 }
 
-module.exports = { procesarArchivoLocal };
+module.exports = { procesarHTML };
