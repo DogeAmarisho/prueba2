@@ -3,7 +3,5 @@ const express = require('express');
 const router = express.Router();
 const ScraperCtrl = require('../controllers/scraperController');
 
-// Define el endpoint que pide la evaluación (GET /scrape) [cite: 121, 134]
-router.get('/scrape', ScraperCtrl.getScrape);
-
+router.get('/scrape', Ctrl.obtenerDatos);
 module.exports = router;
